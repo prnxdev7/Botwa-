@@ -19,11 +19,18 @@ def load_config(path="./config.toml"):
     """Loads the config from `path`"""
     if os.path.exists(path) and os.path.isfile(path):
         config = toml.load(path)
-        return config
     else:
-        with open(path, "w") as config:
-            config.write(EXAMPLE_CONFIG)
-            logging.warn(
+        with open(path, "w") as f:
+            f.write(EXAMPLE_CONFIG)
+            logging.warning(
                 f"No config file found. Creating a default config file at {path}"
             )
-        return load_config(path=path)
+        config = toml.load(path)
+
+    # ✅ Override with environment variables if available
+    if os.getenv("TOKEN"):
+        config["token"] = os.getenv("TOKEN")
+    if os.getenv("PREFIX"):
+        config["prefix"] = os.getenv("PREFIX")
+
+    return config
